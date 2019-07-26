@@ -1,11 +1,11 @@
 # BUILD
 FROM golang:latest as builder
 
-# copy
+# COPY
 WORKDIR /src/
 COPY . /src/
 
-# build
+# BUILD
 ENV GO111MODULE=on
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -a -tags netgo \
