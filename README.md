@@ -24,6 +24,8 @@ SLACK_API_TOKEN=
 SLACK_BUILD_STATUS_CHANNEL=
 ```
 
+> TODO: Add pointer to how-to get Slack token
+
 ## Service Deploy
 
 Once you define the above variables, you can now deploy that image to Cloud Run using this command:
@@ -38,8 +40,6 @@ gcloud beta run deploy cloud-build-status \
 ```
 
 > When prompted to "allow unauthenticated" select "n" for No. That will set that service private so that we can use service account later to enable PubSub to "push" evens to this service.
-
-Once deployment is completed, make sure to capture the URL that's generated for this service.
 
 ## Service Account & Authorization
 
@@ -90,6 +90,12 @@ gcloud beta pubsub subscriptions create cloud-builds-sub \
 ## Log
 
 When running the `cloud-build-status` service you can see in the Cloud Run service log tab the raw data that was pushed by PubSub subscription to the service and the processed data that was pushed onto the target topic
+
+## Slack
+
+You should see notifications in Slack whenever Cloud Build triggers build status change notification.
+
+<img src="images/slack.png" alt="Slack Notification">
 
 ## Disclaimer
 
