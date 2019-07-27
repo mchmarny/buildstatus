@@ -34,7 +34,7 @@ Once you define the above variables, you can now deploy that image to Cloud Run 
 
 ```shell
 gcloud beta run deploy cloud-build-status \
-	--image=gcr.io/cloudylabs-public/cloud-build-status:0.1.1 \
+  --image=gcr.io/cloudylabs-public/cloud-build-status:0.1.1 \
   --region us-central1 \
   --set-env-vars=SLACK_API_TOKEN=$SLACK_API_TOKEN,SLACK_BUILD_STATUS_CHANNEL=$SLACK_BUILD_STATUS_CHANNEL
 ```
@@ -45,46 +45,44 @@ gcloud beta run deploy cloud-build-status \
 
 Because this Cloud Run service will only process events pushed from Cloud PubSub, we will need to create a service account and ensure that only that service account is able to invoke the Cloud Run service.
 
-First, let's though enable your project to create Cloud Pub/Sub authentication tokens:
+First, let's enable your project to create Cloud Pub/Sub authentication tokens:
 
 ```shell
 gcloud projects add-iam-policy-binding $PRJ \
-    --member="serviceAccount:service-${PRJ_NUM}@gcp-sa-pubsub.iam.gserviceaccount.com" \
-    --role=roles/iam.serviceAccountTokenCreator
+ --member="serviceAccount:service-${PRJ_NUM}@gcp-sa-pubsub.iam.gserviceaccount.com"\
+ --role='roles/iam.serviceAccountTokenCreator'
 ```
 
-Then let's create a service account (`buildstatusinvoker`) that will be used by PubSub to invoke our Cloud Run service:
+Then, create a service account (`build-notif-sa`) that will be used by PubSub to invoke our Cloud Run service:
 
 ```shell
-gcloud iam service-accounts create buildstatusinvoker \
-    --display-name "Cloud Run Notification Service Invoker"
+gcloud iam service-accounts create build-notif-sa \
+  --display-name "Cloud Run Notification Service Invoker"
 ```
 
 Now we can create a policy binding for that service account to access our Cloud Run service
 
 ```shell
-gcloud beta run services add-iam-policy-binding buildstatus \
-	--member=serviceAccount:buildstatusinvoker@${PRJ}.iam.gserviceaccount.com \
+gcloud beta run services add-iam-policy-binding cloud-build-status \
+	--member=serviceAccount:build-notif-sa@${PRJ}.iam.gserviceaccount.com \
 	--role=roles/run.invoker
 ```
 
 ## PubSub Subscription
 
-To enable PubSub to send topic data to Cloud Run service we will need to create a PubSub topic subscription called `cloud-builds-sub` for `cloud-builds` topic.
-
-Also, since Cloud Run generates service URL including random portion of the service name so let's capture the URL:
+Since Cloud Run generates service URL including random portion of the service name, we will start by capturing the service URL:
 
 ```shell
 SURL=$(gcloud beta run services describe cloud-build-status --region us-central1 --format 'value(status.domain)')
 ```
 
-Now we are create the PubSub push subscription:
+Then, to enable PubSub to push data to Cloud Run service we will need to create a PubSub topic subscription called `cloud-builds-sub` for `cloud-builds` topic:
 
 ```shell
 gcloud beta pubsub subscriptions create cloud-builds-sub \
 	--topic cloud-builds \
 	--push-endpoint="${SURL}/" \
-	--push-auth-service-account="buildstatusinvoker@${PRJ}.iam.gserviceaccount.com"
+	--push-auth-service-account="build-notif-sa@${PRJ}.iam.gserviceaccount.com"
 ```
 
 ## Log
