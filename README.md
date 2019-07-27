@@ -4,7 +4,7 @@ Simple Cloud Build status notification based on status changes published by Clou
 
 <img src="images/slack.png" alt="Slack Notification">
 
-This sample uses [Cloud Build](https://cloud.google.com/cloud-build/) and [Cloud Run](https://cloud.google.com/run/) GCP service. The full end-to-end demo showcasing continuous deployment on GitHub release is available [here](github.com/mchmarny/knative-gitops-using-cloud-build).
+This sample uses [Cloud Build](https://cloud.google.com/cloud-build/) and [Cloud Run](https://cloud.google.com/run/) GCP service. The full end-to-end demo showcasing continuous deployment test, build, and deployment see [knative-gitops-using-cloud-build](https://github.com/mchmarny/knative-gitops-using-cloud-build).
 
 ## Setup
 
