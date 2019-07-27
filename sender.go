@@ -41,10 +41,8 @@ func send(msg *CloudBuildNotification) error {
 				msg.Source.RepoSource.TagName),
 		},
 		slack.AttachmentField{
-			Title: "Build",
-			Value: fmt.Sprintf("Tag *%s* was built: *%s*",
-				msg.Source.RepoSource.TagName,
-				msg.Status),
+			Title: "Status",
+			Value: msg.Status,
 		},
 	}
 

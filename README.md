@@ -1,51 +1,46 @@
 # buildstatus
 
-Simple Cloud Build status notification based build status changes published by Cloud Build to Cloud PubSub topic
+Simple Cloud Build status notification based on status changes published by Cloud Build to Cloud PubSub topic.
 
-* [Cloud Build](https://cloud.google.com/cloud-build/)
-* [Cloud Run](https://cloud.google.com/run/)
-* [Cloud Build Trigger Demo](github.com/mchmarny/knative-gitops-using-cloud-build)
+<img src="images/slack.png" alt="Slack Notification">
 
-## Configuration
+This sample uses [Cloud Build](https://cloud.google.com/cloud-build/) and [Cloud Run](https://cloud.google.com/run/) GCP service. The full end-to-end demo showcasing continuous deployment on GitHub release is available [here](github.com/mchmarny/knative-gitops-using-cloud-build).
 
-Start by capturing few configuration values required to deploy and configuring the notification service:
+## Setup
+
+We will start by capturing a few configuration values required to deploy and configuring the notification service, Project name and ID:
 
 ```shell
 PRJ=$(gcloud config get-value project)
 PRJ_NUM=$(gcloud projects list --filter="${PRJ}" --format="value(PROJECT_NUMBER)")
 ```
 
-In addition to the above, we are also going to need a couple of Slack API information.
-
-> Note, `SLACK_BUILD_STATUS_CHANNEL` is the ID of the channel, not its name
+In addition to the above, we also need a couple of Slack API configuration parameters. See this how to for more details on [Creating API tokens](https://get.slack.help/hc/en-us/articles/215770388-Create-and-regenerate-API-tokens):
 
 ```shell
 SLACK_API_TOKEN=
+# this is the ID of the channel, not its name
 SLACK_BUILD_STATUS_CHANNEL=
 ```
 
-> TODO: Add pointer to how-to get Slack token
-
 ## Service Deploy
 
-Once you define the above variables, you can now deploy that image to Cloud Run using this command:
+Once you define the above variables, you can deploy the prebuilt image to Cloud Run using this command:
 
-> Note, for the Slack token, consider using something like [berglas](https://github.com/GoogleCloudPlatform/berglas) to avoid storing secrets in environment variables
+> To avoid storing sensitive data in environment variables consider using something like [berglas](https://github.com/GoogleCloudPlatform/berglas)
 
 ```shell
 gcloud beta run deploy cloud-build-status \
-  --image=gcr.io/cloudylabs-public/cloud-build-status:0.1.1 \
+  --image=gcr.io/cloudylabs-public/cloud-build-status:0.1.2 \
   --region us-central1 \
   --set-env-vars=SLACK_API_TOKEN=$SLACK_API_TOKEN,SLACK_BUILD_STATUS_CHANNEL=$SLACK_BUILD_STATUS_CHANNEL
 ```
 
-> When prompted to "allow unauthenticated" select "n" for No. That will set that service private so that we can use service account later to enable PubSub to "push" evens to this service.
+When prompted to `allow unauthenticated` select "N" for No. That will set that service private so that we can use service account later to enable PubSub to "push" evens to this service.
 
-## Service Account & Authorization
+## Service Authorization
 
-Because this Cloud Run service will only process events pushed from Cloud PubSub, we will need to create a service account and ensure that only that service account is able to invoke the Cloud Run service.
-
-First, let's enable your project to create Cloud Pub/Sub authentication tokens:
+Because we want Cloud Run to only process events pushed from Cloud PubSub, we will need to enable our project to create Cloud Pub/Sub authentication tokens:
 
 ```shell
 gcloud projects add-iam-policy-binding $PRJ \
@@ -53,14 +48,14 @@ gcloud projects add-iam-policy-binding $PRJ \
  --role='roles/iam.serviceAccountTokenCreator'
 ```
 
-Then, create a service account (`build-notif-sa`) that will be used by PubSub to invoke our Cloud Run service:
+Then, we will create a service account (`build-notif-sa`) that will be used by PubSub to invoke our Cloud Run service:
 
 ```shell
 gcloud iam service-accounts create build-notif-sa \
   --display-name "Cloud Run Notification Service Invoker"
 ```
 
-Now we can create a policy binding for that service account to access our Cloud Run service
+Finally, we can create a policy binding for that service account to access our Cloud Run service:
 
 ```shell
 gcloud beta run services add-iam-policy-binding cloud-build-status \
@@ -70,13 +65,13 @@ gcloud beta run services add-iam-policy-binding cloud-build-status \
 
 ## PubSub Subscription
 
-Since Cloud Run generates service URL including random portion of the service name, we will start by capturing the service URL:
+Since Cloud Run generates service URL which includes random portion of the service name, we will start by capturing the full service URL:
 
 ```shell
 SURL=$(gcloud beta run services describe cloud-build-status --region us-central1 --format 'value(status.domain)')
 ```
 
-Then, to enable PubSub to push data to Cloud Run service we will need to create a PubSub topic subscription called `cloud-builds-sub` for `cloud-builds` topic:
+Now, to enable PubSub to push data to Cloud Run service we will create a PubSub topic subscription called `cloud-builds-sub` for the `cloud-builds` topic to which Cloud Build publishes status changes:
 
 ```shell
 gcloud beta pubsub subscriptions create cloud-builds-sub \
@@ -85,15 +80,15 @@ gcloud beta pubsub subscriptions create cloud-builds-sub \
 	--push-auth-service-account="build-notif-sa@${PRJ}.iam.gserviceaccount.com"
 ```
 
-## Log
-
-When running the `cloud-build-status` service you can see in the Cloud Run service log tab the raw data that was pushed by PubSub subscription to the service and the processed data that was pushed onto the target topic
-
 ## Slack
 
-You should see notifications in Slack whenever Cloud Build triggers build status change notification.
+That's it. If everything goes well, you should see notifications in Slack for each one of the Cloud Build status changes resulting from build trigger (e.g. WORKING, SUCCESS, FAILURE, INTERNAL_ERROR, TIMEOUT).
 
-<img src="images/slack.png" alt="Slack Notification">
+## Log & Metrics
+
+You can also view the `cloud-build-status` service log to see the raw data that was pushed by PubSub subscription to the service and the processed data that was pushed onto the target topic.
+
+Additionally, in Stackdriver, you can also monitor the Cloud PubSub subscription and Cloud Run metrics.
 
 ## Disclaimer
 
