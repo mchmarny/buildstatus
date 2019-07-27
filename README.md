@@ -3,7 +3,7 @@
 Simple Cloud Build status notification based build status changes published by Cloud Build to Cloud PubSub topic
 
 * [Cloud Build](https://cloud.google.com/cloud-build/)
-* [Cloud Rub](https://cloud.google.com/run/)
+* [Cloud Run](https://cloud.google.com/run/)
 * [Cloud Build Trigger Demo](github.com/mchmarny/knative-gitops-using-cloud-build)
 
 ## Configuration
