@@ -82,7 +82,7 @@ gcloud beta pubsub subscriptions create cloud-builds-sub \
 
 ## Slack
 
-That's it. If everything goes well, you should see notifications in Slack for each one of the Cloud Build status changes resulting from build trigger (e.g. WORKING, SUCCESS, FAILURE, INTERNAL_ERROR, TIMEOUT).
+That's it. If everything goes well, you should see notifications in Slack for each one of the Cloud Build status changes resulting from build trigger (e.g. `WORKING`, `SUCCESS`, `FAILURE`, `INTERNAL_ERROR`, `TIMEOUT`).
 
 ## Log & Metrics
 
