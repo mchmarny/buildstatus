@@ -12,7 +12,6 @@ We will start by capturing a few configuration values required to deploy and con
 
 ```shell
 PRJ=$(gcloud config get-value project)
-PRJ_NUM=$(gcloud projects list --filter="${PRJ}" --format="value(PROJECT_NUMBER)")
 PRJ_NUM=$(gcloud projects describe ${PRJ} --format 'value(projectNumber)')
 ```
 
