@@ -1,0 +1,15 @@
+#!/bin/bash
+
+TOPIC_NAME="cloud-builds"
+SERVICE_NAME="cloud-build-status"
+SERVICE_REGION="us-central1" # region to which service will be deployed
+SERVICE_IMAGE_VERSION="0.3.2" # gcr.io/cloudylabs-public/cloud-build-status:x
+SLACK_API_TOKEN="${SLACK_API_TOKEN:-notset}"
+SLACK_BUILD_STATUS_CHANNEL="${SLACK_BUILD_STATUS_CHANNEL:-notset}"
+
+# DON'T CHANGE BELOW - Derived values
+SUBSCRIPTION_NAME="${TOPIC_NAME}-cr-push"
+SERVICE_ACCOUNT_NAME="${SERVICE_NAME}-cr-push"
+PROJECT=$(gcloud config get-value project)
+PROJECT_NUM=$(gcloud projects describe ${PROJECT} \
+    --format="value(projectNumber)")

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+gcloud iam service-accounts create ${SERVICE_ACCOUNT_NAME} \
+    --display-name "pubsub-to-bigquery-pump cloud run service account"
+
+gcloud projects add-iam-policy-binding $PROJECT \
+    --member "serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com" \
+    --role roles/run.invoker
+
+# run service account policies
+gcloud projects add-iam-policy-binding $PROJECT \
+	--member "serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com" \
+    --role roles/logging.logWriter
+
+gcloud projects add-iam-policy-binding $PROJECT \
+	--member "serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com" \
+    --role roles/cloudtrace.agent
+
+gcloud projects add-iam-policy-binding $PROJECT \
+	--member "serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com" \
+    --role roles/monitoring.metricWriter
+

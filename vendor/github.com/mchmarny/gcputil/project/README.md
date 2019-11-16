@@ -16,21 +16,17 @@ import "github.com/mchmarny/gcputil/project"
 p, err := project.GetID()
 ```
 
-Or alternatively, fail if not set
+Or, fail if not set
 
 ```shell
-p := project.GetID()
+p := project.GetIDOrFail()
 ```
 
-Or gt the configured meta object
+You can also get the NumericProjectID (number)
+
 
 ```shell
-import "github.com/mchmarny/gcputil/meta"
+n, err := project.GetNumericProjectID()
 ```
 
-...and get access to all the other metadata service methods, for example
-
-```shell
-name := meta.GetClient().InstanceName()
-```
 

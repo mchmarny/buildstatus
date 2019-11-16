@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	env "github.com/mchmarny/gcputil/env"
+	"github.com/mchmarny/gcputil/env"
 	"github.com/nlopes/slack"
 )
 

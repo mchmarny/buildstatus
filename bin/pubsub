@@ -1,0 +1,23 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+
+gcloud projects add-iam-policy-binding $PROJECT \
+     --member "serviceAccount:service-${PROJECT_NUM}@gcp-sa-pubsub.iam.gserviceaccount.com" \
+     --role=roles/iam.serviceAccountTokenCreator
+
+
+SERVICE_URL=$(gcloud beta run services describe $SERVICE_NAME \
+    --platform managed \
+	--region $SERVICE_REGION \
+    --format "value(status.domain)")
+
+gcloud beta pubsub subscriptions create $SUBSCRIPTION_NAME \
+    --topic $TOPIC_NAME \
+    --push-endpoint ${SERVICE_URL} \
+    --push-auth-service-account "${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com"
+
+
+

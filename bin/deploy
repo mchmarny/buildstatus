@@ -1,0 +1,18 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+gcloud run deploy $SERVICE_NAME \
+	--allow-unauthenticated \
+	--image "gcr.io/cloudylabs-public/cloud-build-status:${SERVICE_IMAGE_VERSION}" \
+	--platform managed \
+	--timeout 15m \
+	--region $SERVICE_REGION \
+	--set-env-vars "SLACK_API_TOKEN=${SLACK_API_TOKEN},SLACK_BUILD_STATUS_CHANNEL=${SLACK_BUILD_STATUS_CHANNEL}" \
+	--service-account "${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com"
+
+
+gcloud run services add-iam-policy-binding $SERVICE_NAME \
+    --member "serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com" \
+    --role roles/run.invoker

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+
+# PubSub
+gcloud pubsub subscriptions delete $SUBSCRIPTION_NAME -q
+
+# Cloud Run
+gcloud beta run services delete $SERVICE_NAME \
+    --platform managed \
+    --region $SERVICE_REGION -q
+
+# IAM
+gcloud iam service-accounts delete \
+    "${SERVICE_ACCOUNT_NAME}@${PROJECT}.iam.gserviceaccount.com" -q

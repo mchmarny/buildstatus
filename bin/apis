@@ -1,0 +1,11 @@
+#!/bin/bash
+
+gcloud services enable --quiet \
+    bigquery-json.googleapis.com \
+    bigquerystorage.googleapis.com \
+    compute.googleapis.com \
+    cloudbuild.googleapis.com \
+    iam.googleapis.com \
+    pubsub.googleapis.com \
+    run.googleapis.com
+

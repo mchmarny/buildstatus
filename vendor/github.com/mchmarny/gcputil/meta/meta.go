@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	meta "cloud.google.com/go/compute/metadata"
+	m "cloud.google.com/go/compute/metadata"
 )
 
 var (
@@ -13,8 +13,8 @@ var (
 )
 
 // GetClient returns the raw metadata client
-func GetClient(agent string) *meta.Client {
-	return meta.NewClient(&http.Client{
+func GetClient(agent string) *m.Client {
+	return m.NewClient(&http.Client{
 		Transport: userAgentTransport{
 			userAgent: agent,
 			base:      http.DefaultTransport,

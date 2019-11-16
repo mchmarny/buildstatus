@@ -1,0 +1,21 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+
+# modules
+go mod tidy
+go mod vendor
+
+# public image, comment this out and use the bellow submit commnad
+# to build image in your own project
+gcloud builds submit \
+    --project cloudylabs-public \
+    --tag "gcr.io/cloudylabs-public/cloud-build-status:${SERVICE_IMAGE_VERSION}" \
+    .
+
+# private iamge (project scoped)
+# gcloud builds submit \
+#     --tag "gcr.io/${PROJECT}/cloud-build-status:${SERVICE_IMAGE_VERSION}" \
+#     .
