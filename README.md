@@ -68,7 +68,7 @@ gcloud beta run services add-iam-policy-binding cloud-build-status \
 Since Cloud Run generates service URL which includes random portion of the service name, we will start by capturing the full service URL:
 
 ```shell
-SURL=$(gcloud beta run services describe cloud-build-status --region us-central1 --format 'value(status.domain)')
+SURL=$(gcloud beta run services describe cloud-build-status --region us-central1 --format 'value(status.url)')
 ```
 
 Now, to enable PubSub to push data to Cloud Run service we will create a PubSub topic subscription called `cloud-builds-sub` for the `cloud-builds` topic to which Cloud Build publishes status changes:

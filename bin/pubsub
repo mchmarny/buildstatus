@@ -12,7 +12,7 @@ gcloud projects add-iam-policy-binding $PROJECT \
 SERVICE_URL=$(gcloud beta run services describe $SERVICE_NAME \
     --platform managed \
 	--region $SERVICE_REGION \
-    --format "value(status.domain)")
+    --format "value(status.url)")
 
 gcloud beta pubsub subscriptions create $SUBSCRIPTION_NAME \
     --topic $TOPIC_NAME \
